@@ -112,4 +112,80 @@ function generateCode(elements) {
 const code = generateCode(extractedElements);
 console.log(code);
 
+function generateLayoutCode(elements, options = { autoLayout: true }) {
+  let code = '';
+
+  if (options.autoLayout) {
+    // Automatically detect the appropriate layout based on the number and type of elements
+    if (elements.length === 1) {
+      // If there is only one element, use a single widget
+      code += `${elements[0]}`;
+    } else if (elements.every(element => element.type === 'TEXT')) {
+      // If all elements are text, use a column of text widgets
+      code += `Column(
+  children: [
+    ${elements.join(',\n')}
+  ],
+)`;
+    } else {
+      // If there are multiple elements of different types, use a grid of widgets
+      code += `GridView.count(
+  crossAxisCount: 2,
+  children: [
+    ${elements.join(',\n')}
+  ],
+)`;
+    }
+  } else {
+    // Use the specified layout format
+    code += `${options.format}(
+  children: [
+    ${elements.join(',\n')}
+  ],
+)`;
+  }
+
+  return code;
+}
+
+const layoutCode = generateLayoutCode(extractedElements);
+console.log(layoutCode);
+
+//const layoutCode = generateLayoutCode(extractedElements, {
+//  autoLayout: false,
+//  format: 'Row',
+//});
+
+function generateAssembledLayoutCode(elements) {
+  // Generate the individual widget code for all elements
+  const widgetCode = generateCode(elements);
+
+  // Assemble the layout code using the generated widget code
+  return `
+import 'package:flutter/material.dart';
+
+class MyScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('My Screen'),
+      ),
+      body: Container(
+        child: Column(
+          children: [
+            ${widgetCode}
+          ],
+        ),
+      ),
+    );
+  }
+}
+`;
+}
+
+const assembledLayoutCode = generateAssembledLayoutCode(extractedElements);
+console.log(assembledLayoutCode);
+
+
  
