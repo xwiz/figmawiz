@@ -31,6 +31,7 @@ function extractElements(node) {
       type: node.type,
       name: node.name,
       color: node.fills[0].color,
+      backgroundColor: node.type === 'SHAPE' ? node.fills[0].color : '',
       fontSize: node.style.fontSize,
       fontWeight: node.style.fontWeight,
       textAlign: node.style.textAlign,
