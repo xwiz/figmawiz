@@ -1,0 +1,20 @@
+{
+  "id": "flutter-code-genz",
+  "name": "Flutter Code Generator",
+  "description": "Generates Flutter code from Figma files",
+  "version": "1.0.0",
+  "author": "robosys",
+  "main": "main.js",
+  "repository": "https://github.com/xwiz/figmawiz",
+  "homepage": "https://github.com/xwiz/figmawiz",
+  "keywords": ["figma", "flutter", "code", "generator"],
+  "engines": {
+    "figma": "^1.0.0"
+  },
+  "dependencies": {
+    "figma-api-client": "^1.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
