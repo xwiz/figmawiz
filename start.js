@@ -1,61 +1,54 @@
 const axios = require('axios');
 
-async function extractDesignElements(fileId, accessToken) {
-  // Retrieve the node tree of the file
-  const response = await axios.get(
-    `https://api.figma.com/v1/files/${fileId}/nodes`,
-    {
-      headers: {
-        'X-Figma-Token': accessToken,
-      },
-    }
-  );
-  const nodes = response.data.nodes;
+async function getDesignElements(fileId) {
+  // Retrieve the node tree of the mobile screen
+  const response = await axios.get(`https://api.figma.com/v1/files/${fileId}/nodes`, {
+    headers: {
+      'X-Figma-Token': 'YOUR_FIGMA_TOKEN',
+    },
+  });
 
-  // Traverse the node tree and extract the design elements
+  const nodes = response.data.nodes;
+  const mobileScreenNode = nodes['MOBILE_SCREEN_NODE_ID']; // Replace with the actual node ID of the mobile screen
+
+  // Traverse the node tree to extract the design elements
   const designElements = [];
-  for (const nodeId in nodes) {
-    const node = nodes[nodeId];
+  function traverseNodes(node) {
     if (node.type === 'TEXT') {
-      // Extract text element
       designElements.push({
         type: 'text',
         text: node.characters,
-        fontName: node.fontName.family,
         fontSize: node.fontSize,
+        fontName: node.fontName,
         color: node.fills[0].color,
       });
     } else if (node.type === 'RECTANGLE') {
-      // Extract shape element
       designElements.push({
         type: 'shape',
+        width: node.width,
+        height: node.height,
         color: node.fills[0].color,
       });
     } else if (node.type === 'VECTOR') {
-      // Extract image element
-      const imageUrl = await getVectorImageUrl(node.id, accessToken);
       designElements.push({
         type: 'image',
-        url: imageUrl,
+        width: node.width,
+        height: node.height,
+        imageUrl: node.vectorProperties.imageUrl,
       });
+    } else {
+      // Recursively traverse the children nodes
+      if (node.children) {
+        node.children.forEach((childNode) => traverseNodes(childNode));
+      }
     }
   }
+  traverseNodes(mobileScreenNode);
 
   return designElements;
 }
 
-async function getVectorImageUrl(nodeId, accessToken) {
-  // Retrieve the vector image data for the node
-  const response = await axios.get(
-    `https://api.figma.com/v1/images/${nodeId}`,
-    {
-      headers: {
-        'X-Figma-Token': accessToken,
-      },
-      params: {
-        format: 'png',
-      },
-    }
-  );
-  return response.data.url;
-}
+// Example usage:
+getDesignElements('FILE_ID')
+  .then((designElements) => console.log(designElements))
+  .catch((error) => console.error(error));
